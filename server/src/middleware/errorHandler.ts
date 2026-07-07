@@ -1,0 +1,48 @@
+import type { Request, Response, NextFunction } from 'express';
+import { Prisma } from '@prisma/client';
+import { ApiError } from '../utils/ApiError.js';
+import { logger } from '../lib/logger.js';
+import { isProd } from '../config/env.js';
+
+/** 404 handler for unmatched routes. */
+export function notFoundHandler(req: Request, _res: Response, next: NextFunction) {
+  next(ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`));
+}
+
+/** Global error handler — last middleware in the chain. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction) {
+  // Known application errors
+  if (err instanceof ApiError) {
+    return res.status(err.statusCode).json({
+      success: false,
+      error: { message: err.message, ...(err.details ? { details: err.details } : {}) },
+    });
+  }
+
+  // Prisma known request errors → friendly messages
+  if (err instanceof Prisma.PrismaClientKnownRequestError) {
+    if (err.code === 'P2002') {
+      return res.status(409).json({
+        success: false,
+        error: { message: 'A record with this value already exists', details: err.meta?.target },
+      });
+    }
+    if (err.code === 'P2025') {
+      return res.status(404).json({ success: false, error: { message: 'Record not found' } });
+    }
+    if (err.code === 'P2003') {
+      return res
+        .status(400)
+        .json({ success: false, error: { message: 'Related record does not exist' } });
+    }
+  }
+
+  const message = err instanceof Error ? err.message : 'Internal server error';
+  logger.error({ err }, 'Unhandled error');
+
+  return res.status(500).json({
+    success: false,
+    error: { message: isProd ? 'Internal server error' : message },
+  });
+}

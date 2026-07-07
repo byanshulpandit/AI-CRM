@@ -1,0 +1,128 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light theme tokens (HSL channels, no hsl() wrapper) */
+    --background: 220 30% 97%;
+    --foreground: 224 30% 12%;
+    --card: 0 0% 100%;
+    --muted: 220 16% 92%;
+    --muted-foreground: 220 10% 42%;
+    --primary: 244 75% 60%;
+    --primary-foreground: 0 0% 100%;
+    --accent: 280 70% 60%;
+    --accent-foreground: 0 0% 100%;
+    --success: 152 62% 42%;
+    --warning: 38 92% 50%;
+    --danger: 0 74% 55%;
+    --border: 220 16% 88%;
+    --input: 220 16% 90%;
+    --ring: 244 75% 60%;
+
+    /* Glass surface derived tokens */
+    --glass-bg: 255 255 255;
+    --glass-alpha: 0.65;
+    --glass-border: 255 255 255;
+    --glass-border-alpha: 0.5;
+  }
+
+  .dark {
+    --background: 224 40% 6%;
+    --foreground: 220 20% 96%;
+    --card: 224 32% 11%;
+    --muted: 224 24% 18%;
+    --muted-foreground: 220 12% 65%;
+    --primary: 244 80% 66%;
+    --primary-foreground: 0 0% 100%;
+    --accent: 280 75% 66%;
+    --accent-foreground: 0 0% 100%;
+    --success: 152 58% 48%;
+    --warning: 38 92% 55%;
+    --danger: 0 72% 60%;
+    --border: 224 22% 22%;
+    --input: 224 22% 20%;
+    --ring: 244 80% 66%;
+
+    --glass-bg: 22 27 45;
+    --glass-alpha: 0.55;
+    --glass-border: 255 255 255;
+    --glass-border-alpha: 0.08;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter var', Inter, system-ui, sans-serif;
+    min-height: 100vh;
+  }
+
+  /* Ambient gradient backdrop behind the glass surfaces */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(60rem 60rem at 12% -10%, hsl(var(--primary) / 0.18), transparent 55%),
+      radial-gradient(50rem 50rem at 100% 0%, hsl(var(--accent) / 0.16), transparent 50%),
+      radial-gradient(40rem 40rem at 50% 120%, hsl(var(--primary) / 0.12), transparent 55%);
+    pointer-events: none;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted rounded-full;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/40;
+  }
+}
+
+@layer components {
+  /* The core glassmorphism surface */
+  .glass {
+    background: rgb(var(--glass-bg) / var(--glass-alpha));
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border: 1px solid rgb(var(--glass-border) / var(--glass-border-alpha));
+  }
+
+  .glass-strong {
+    background: rgb(var(--glass-bg) / 0.85);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgb(var(--glass-border) / var(--glass-border-alpha));
+  }
+
+  .card-surface {
+    @apply glass rounded-2xl shadow-glass-sm;
+  }
+
+  .focus-ring {
+    @apply outline-none ring-offset-2 ring-offset-background focus-visible:ring-2 focus-visible:ring-ring;
+  }
+
+  /* Loading skeleton shimmer */
+  .skeleton {
+    @apply relative overflow-hidden rounded-md bg-muted/60;
+  }
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0 -translate-x-full animate-shimmer;
+    background: linear-gradient(90deg, transparent, hsl(var(--foreground) / 0.06), transparent);
+  }
+}
