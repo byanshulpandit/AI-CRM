@@ -2,6 +2,7 @@ import type { AiProvider } from './AiProvider.js';
 import { MockAiProvider } from './MockAiProvider.js';
 import { AnthropicAiProvider } from './AnthropicAiProvider.js';
 import { OpenAiProvider } from './OpenAiProvider.js';
+import { GeminiProvider } from './GeminiProvider.js';
 import { env } from '../../config/env.js';
 import { logger } from '../../lib/logger.js';
 
@@ -23,6 +24,13 @@ function resolveProvider(): AiProvider {
       return new MockAiProvider();
     }
     return new OpenAiProvider();
+  }
+  if (env.AI_PROVIDER === 'gemini') {
+    if (!env.GEMINI_API_KEY) {
+      logger.warn('AI_PROVIDER=gemini but GEMINI_API_KEY is empty — using mock provider');
+      return new MockAiProvider();
+    }
+    return new GeminiProvider();
   }
   return new MockAiProvider();
 }
