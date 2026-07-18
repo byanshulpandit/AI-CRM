@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
+import { isProd } from '../../config/env.js';
 import { authController } from './auth.controller.js';
 import { validate } from '../../middleware/validate.js';
 import { authenticate } from '../../middleware/authenticate.js';
@@ -7,7 +8,13 @@ import { asyncHandler } from '../../utils/asyncHandler.js';
 import { registerSchema, loginSchema } from './auth.validation.js';
 
 // Stricter limiter for auth endpoints to blunt brute-force attempts.
-const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 50, standardHeaders: true, legacyHeaders: false });
+// Relaxed outside production so e2e suites (many logins per run) don't 429.
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: isProd ? 50 : 100000,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 export const authRouter = Router();
 

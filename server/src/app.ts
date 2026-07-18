@@ -28,15 +28,17 @@ export function createApp() {
   // Serve uploaded files statically
   app.use('/uploads', express.static(path.resolve(env.UPLOAD_DIR)));
 
-  // Global rate limiter
-  app.use(
-    rateLimit({
-      windowMs: 15 * 60 * 1000,
-      max: 1000,
-      standardHeaders: true,
-      legacyHeaders: false,
-    }),
-  );
+  // Global rate limiter (production only — e2e suites exceed it and get 429s)
+  if (isProd) {
+    app.use(
+      rateLimit({
+        windowMs: 15 * 60 * 1000,
+        max: 1000,
+        standardHeaders: true,
+        legacyHeaders: false,
+      }),
+    );
+  }
 
   app.get('/health', (_req, res) => sendSuccess(res, { status: 'ok', uptime: process.uptime() }));
 
