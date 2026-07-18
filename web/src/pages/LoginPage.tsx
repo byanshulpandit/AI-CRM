@@ -99,7 +99,7 @@ export default function LoginPage() {
           )}
 
           {mode === 'login' ? (
-            <form onSubmit={submitLogin} className="space-y-4">
+            <form onSubmit={submitLogin} noValidate className="space-y-4">
               <Input
                 label="Email"
                 type="email"
@@ -121,7 +121,7 @@ export default function LoginPage() {
               </Button>
             </form>
           ) : (
-            <form onSubmit={submitRegister} className="space-y-4">
+            <form onSubmit={submitRegister} noValidate className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <Input label="First name" icon={<User className="h-4 w-4" />} error={registerForm.formState.errors.firstName?.message} {...registerForm.register('firstName')} />
                 <Input label="Last name" error={registerForm.formState.errors.lastName?.message} {...registerForm.register('lastName')} />
